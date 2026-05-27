@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endereço IP e Protocolos da Web</title>
+<style>
+  :root {
+    --green: #3b6d11; --green-light: #eaf3de; --green-mid: #639922; --green-border: #97c459;
+    --blue: #185fa5; --blue-light: #e6f1fb; --blue-mid: #378add; --blue-border: #85b7eb;
+    --amber: #854f0b; --amber-light: #faeeda; --amber-mid: #ba7517; --amber-border: #ef9f27;
+    --red: #a32d2d; --red-light: #fcebeb; --red-mid: #e24b4a;
+    --gray-bg: #f8f8f6; --gray-border: #d3d1c7; --gray-text: #5f5e5a;
+    --text: #1a1a18; --bg: #ffffff;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f0ec;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--green);
+    color: #fff;
+    text-align: center;
+    padding: 2.5rem 1.5rem 2rem;
+  }
+  .hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    font-size: 12px;
+    padding: 4px 14px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .hero p  { font-size: 14.5px; opacity: 0.88; max-width: 520px; margin: 0 auto; }
+
+  /* NAV PILLS */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 1.2rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid var(--gray-border);
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    border: 1.5px solid var(--gray-border);
+    background: #fff;
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--gray-text);
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  /* SECTIONS */
+  .section { display: none; max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+  .card p  { font-size: 14px; color: #333; line-height: 1.65; }
+
+  /* IP BUILDER */
+  .ip-builder {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 1rem 0;
+  }
+  .ip-octet { text-align: center; }
+  .ip-octet label { display: block; font-size: 11px; color: var(--gray-text); margin-bottom: 4px; }
+  .ip-octet input {
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    border: 2px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 4px;
+    color: var(--green);
+    background: var(--green-light);
+  }
+  .ip-octet input:focus { outline: none; border-color: var(--green-mid); }
+  .ip-display {
+    text-align: center;
+    font-size: 22px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: var(--green);
+    background: var(--green-light);
+    border: 2px dashed var(--green-border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin: 12px 0;
+    letter-spacing: 2px;
+  }
+  .ip-type-badge {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 4px;
+  }
+  .ip-type-badge.local { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+  .ip-type-badge.public { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+  .ip-type-badge.invalid { background: var(--red-light); color: var(--red); border: 1px solid #f09595; }
+
+  /* PING SIMULATOR */
+  .ping-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .ping-area input {
+    flex: 1;
+    min-width: 160px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+  }
+  .btn {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .2s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn.blue { background: var(--blue-mid); }
+  .btn.amber { background: var(--amber-mid); }
+  .btn-sm {
+    background: #fff;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 5px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .btn-sm:hover { background: var(--gray-bg); }
+
+  .terminal {
+    background: #111;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    min-height: 120px;
+    line-height: 1.85;
+    margin-top: 8px;
+  }
+  .terminal .t-bar {
+    display: flex; gap: 6px; margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid #333; align-items: center;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .t-title { color: #555; font-size: 11px; margin-left: 4px; }
+  .t-prompt { color: #f0ad4e; }
+  .t-cmd    { color: #5cd65c; }
+  .t-out    { color: #ccc; display: block; }
+  .t-ok     { color: #5cd65c; display: block; }
+  .t-err    { color: #e24b4a; display: block; }
+  .t-info   { color: #85b7eb; display: block; }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: #5cd65c; vertical-align: -2px; animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* NETWORK ANIMATION */
+  .net-canvas-wrap {
+    background: #111;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  canvas { display: block; width: 100%; }
+
+  /* HTTP vs HTTPS */
+  .protocol-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 1rem 0;
+  }
+  .proto-card {
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    border: 2px solid;
+  }
+  .proto-card.http  { background: var(--amber-light); border-color: var(--amber-border); }
+  .proto-card.https { background: var(--blue-light); border-color: var(--blue-border); }
+  .proto-card h4 { font-size: 22px; font-weight: 800; margin-bottom: 6px; font-family: 'Courier New', monospace; }
+  .proto-card.http  h4 { color: var(--amber); }
+  .proto-card.https h4 { color: var(--blue); }
+  .proto-card ul { font-size: 13px; padding-left: 16px; color: #333; }
+  .proto-card ul li { margin-bottom: 5px; }
+  .lock-anim {
+    font-size: 36px;
+    text-align: center;
+    margin: 8px 0 4px;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .lock-anim:hover { transform: scale(1.2); }
+
+  /* URL inspector */
+  .url-bar {
+    background: #f5f5f3;
+    border: 1.5px solid var(--gray-border);
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .url-part { padding: 2px 6px; border-radius: 4px; cursor: pointer; transition: all .15s; }
+  .url-part:hover { filter: brightness(0.92); }
+  .url-part.proto-h  { background: #faeeda; color: #854f0b; font-weight: 700; }
+  .url-part.proto-hs { background: #e6f1fb; color: #185fa5; font-weight: 700; }
+  .url-part.domain   { background: var(--green-light); color: var(--green); }
+  .url-part.path     { color: var(--gray-text); }
+  .url-tooltip {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    background: #fff;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 6px;
+    color: #333;
+    min-height: 36px;
+  }
+
+  /* QUIZ */
+  .quiz-q { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    background: #fff;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    transition: all .15s;
+  }
+  .quiz-opt:hover { border-color: var(--green-mid); background: var(--green-light); color: var(--green); }
+  .quiz-opt.correct { background: var(--green-light); border-color: var(--green-mid); color: var(--green); font-weight: 600; }
+  .quiz-opt.wrong   { background: var(--red-light); border-color: var(--red-mid); color: var(--red); }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 12px;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+  }
+  .quiz-feedback.ok  { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+  .quiz-feedback.err { background: var(--red-light); color: var(--red); border: 1px solid #f09595; }
+  .quiz-progress {
+    display: flex; gap: 6px; margin-bottom: 20px;
+  }
+  .qp-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--gray-border);
+    transition: background .3s;
+  }
+  .qp-dot.done-ok  { background: var(--green-mid); }
+  .qp-dot.done-err { background: var(--red-mid); }
+  .qp-dot.current  { background: var(--amber-mid); }
+
+  /* SCORE CARD */
+  .score-card {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+  }
+  .score-num { font-size: 64px; font-weight: 800; color: var(--green); line-height: 1; }
+  .score-label { font-size: 16px; color: var(--gray-text); margin-top: 6px; }
+
+  /* PROGRESS bar top */
+  .prog-bar { height: 4px; background: var(--green-mid); width: 0%; transition: width .4s; }
+
+  /* SECTION TITLE */
+  .sec-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .sec-sub   { font-size: 14px; color: var(--gray-text); margin-bottom: 1.5rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 560px) {
+    .protocol-grid { grid-template-columns: 1fr; }
+    .ip-builder { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="prog-bar" id="progBar"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">EF07CO06 · Redes e Comunicação</div>
+  <h1>Endereço IP e Protocolos da Web</h1>
+  <p>Explore, experimente e descubra como os computadores se identificam e conversam na internet.</p>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="goTo('intro')">1. O que é IP?</button>
+  <button class="nav-btn" onclick="goTo('ping')">2. Simulador Ping</button>
+  <button class="nav-btn" onclick="goTo('http')">3. HTTP vs HTTPS</button>
+  <button class="nav-btn" onclick="goTo('quiz')">4. Quiz Final</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ SEÇÃO 1: IP -->
+<section class="section active" id="sec-intro">
+  <p class="sec-title">Endereço IP</p>
+  <p class="sec-sub">Todo computador em rede tem um endereço único. Sem ele, os dados não sabem para onde ir.</p>
+
+  <div class="card">
+    <h3>🏠 Analogia </h3>
+    <p>Assim como toda casa precisa de um endereço para receber encomendas, todo computador conectado a uma rede precisa de um <strong>endereço IP</strong> (Internet Protocol) para receber e enviar dados. Sem ele, os pacotes simplesmente não chegam ao destino.</p>
+  </div>
+
+  <div class="card">
+    <h3>🔢 Montador de Endereço IP</h3>
+    <p style="margin-bottom:12px; font-size:13px; color:var(--gray-text);">Um endereço IPv4 é formado por 4 números (chamados <em>octetos</em>), separados por pontos. Cada número vai de 0 a 255. Altere os valores abaixo e veja o endereço ser montado:</p>
+    <div class="ip-builder">
+      <div class="ip-octet"><label>Octeto 1</label><input type="number" min="0" max="255" value="192" id="o1" oninput="updateIP()"></div>
+      <div class="ip-octet"><label>Octeto 2</label><input type="number" min="0" max="255" value="168" id="o2" oninput="updateIP()"></div>
+      <div class="ip-octet"><label>Octeto 3</label><input type="number" min="0" max="255" value="1" id="o3" oninput="updateIP()"></div>
+      <div class="ip-octet"><label>Octeto 4</label><input type="number" min="0" max="255" value="15" id="o4" oninput="updateIP()"></div>
+    </div>
+    <div class="ip-display" id="ipDisplay">192.168.1.15</div>
+    <div style="text-align:center;">
+      <span class="ip-type-badge" id="ipTypeBadge">IP local (rede interna)</span>
+    </div>
+    <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn-sm" onclick="setIP(192,168,1,15)">📡 Rede escolar</button>
+      <button class="btn-sm" onclick="setIP(10,0,0,1)">🏠 Roteador casa</button>
+      <button class="btn-sm" onclick="setIP(8,8,8,8)">🌐 Google DNS</button>
+      <button class="btn-sm" onclick="setIP(142,251,128,100)">🔍 Google.com</button>
+      <button class="btn-sm" onclick="setIP(127,0,0,1)">💻 Loopback</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📶 Tipos de endereço IP</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
+      <div style="background:var(--green-light); border:1px solid var(--green-border); border-radius:8px; padding:12px;">
+        <div style="font-weight:700; color:var(--green); margin-bottom:6px;">IP Local (Privado)</div>
+        <div style="font-size:13px; color:#333;">Funciona só dentro da rede (escola, casa). Exemplos: <code style="background:#d0e8c0;padding:1px 4px;border-radius:3px;">192.168.x.x</code>, <code style="background:#d0e8c0;padding:1px 4px;border-radius:3px;">10.x.x.x</code></div>
+      </div>
+      <div style="background:var(--blue-light); border:1px solid var(--blue-border); border-radius:8px; padding:12px;">
+        <div style="font-weight:700; color:var(--blue); margin-bottom:6px;">IP Público</div>
+        <div style="font-size:13px; color:#333;">Visível na internet. Cada site tem um IP público. Exemplo: Google usa <code style="background:#c5d9ef;padding:1px 4px;border-radius:3px;">8.8.8.8</code></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right; margin-top:1rem;">
+    <button class="btn" onclick="goTo('ping')">Próximo: Simulador Ping →</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SEÇÃO 2: PING -->
+<section class="section" id="sec-ping">
+  <p class="sec-title">Simulador de Ping</p>
+  <p class="sec-sub">O comando <code style="background:#eee;padding:2px 6px;border-radius:4px;">ping</code> envia pacotes de teste e mede se o destino está respondendo.</p>
+
+  <div class="card">
+    <h3>Como funciona o ping?</h3>
+    <p>Seu computador envia 4 pequenos pacotes para um endereço IP. Se o destino estiver ativo, ele responde. O tempo de resposta (em ms) mostra a velocidade da conexão.</p>
+  </div>
+
+  <div class="card">
+    <h3>Terminal Interativo</h3>
+    <div class="ping-area">
+      <input type="text" id="pingTarget" value="google.com" placeholder="Digite um IP ou site..." />
+      <button class="btn" onclick="runPing()">▶ Executar ping</button>
+      <button class="btn-sm" onclick="clearTerminal()">Limpar</button>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+      <button class="btn-sm" onclick="setPingTarget('google.com')">google.com</button>
+      <button class="btn-sm" onclick="setPingTarget('8.8.8.8')">8.8.8.8</button>
+      <button class="btn-sm" onclick="setPingTarget('192.168.1.1')">192.168.1.1</button>
+      <button class="btn-sm" onclick="setPingTarget('192.168.99.99')">192.168.99.99</button>
+      <button class="btn-sm" onclick="setPingTarget('127.0.0.1')">127.0.0.1</button>
+    </div>
+    <div class="terminal" id="terminal">
+      <div class="t-bar">
+        <span class="dot" style="background:#e24b4a"></span>
+        <span class="dot" style="background:#ef9f27"></span>
+        <span class="dot" style="background:#5cb85c"></span>
+        <span class="t-title">Prompt de Comando — Simulador</span>
+      </div>
+      <div id="termContent">
+        <span class="t-prompt">C:\aluno&gt; </span><span class="cursor"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="pingExplainer" style="display:none;">
+    <h3 id="pingExpTitle">O que aconteceu?</h3>
+    <p id="pingExpText"></p>
+  </div>
+
+  <!-- ── ATIVIDADE PRÁTICA REAL ── -->
+  <div class="card" style="border: 2px solid var(--amber-border); background: var(--amber-light);">
+    <h3 style="color:var(--amber); font-size:17px;">🖥️ Atividade Prática — Execute no seu computador!</h3>
+    <p style="font-size:13.5px; color:#412402; margin-bottom:16px;">
+      Agora é hora de sair do simulador e usar o terminal <strong>de verdade</strong>. Siga os passos abaixo, anote os resultados e responda as perguntas de registro.
+    </p>
+
+    <!-- PASSO A PASSO -->
+    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+
+      <!-- Passo 1 -->
+      <div style="background:#fff; border:1px solid var(--amber-border); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <div style="background:var(--amber-mid); color:#fff; font-weight:800; font-size:15px; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+        <div>
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Abra o Prompt de Comando</div>
+          <div style="font-size:13px; color:#555; line-height:1.6;">
+            <strong>Windows:</strong> Pressione <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 6px;font-size:12px;">Win</kbd> + <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 6px;font-size:12px;">R</kbd>, digite <code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;">cmd</code> e pressione Enter.<br>
+            <strong>Linux/Mac:</strong> Abra o aplicativo <em>Terminal</em>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 2 -->
+      <div style="background:#fff; border:1px solid var(--amber-border); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <div style="background:var(--amber-mid); color:#fff; font-weight:800; font-size:15px; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Descubra o seu IP — comando <code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;">ipconfig</code></div>
+          <div style="font-size:13px; color:#555; margin-bottom:8px;">Digite o comando abaixo e pressione Enter:</div>
+          <div style="background:#1a1a1a; border-radius:6px; padding:10px 14px; font-family:'Courier New',monospace; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span style="color:#5cd65c;">ipconfig</span>
+            <button onclick="copyCmd('ipconfig')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ccc;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;" title="Copiar comando">📋 copiar</button>
+          </div>
+          <div style="font-size:12.5px; color:#666; margin-top:8px; line-height:1.5;">Procure a linha <strong>"Endereço IPv4"</strong>. Anote o número que aparecer (ex: 192.168.1.15) — esse é o IP do seu computador nesta rede.</div>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:600; color:var(--amber);">Meu IP é:</span>
+            <input type="text" id="meuIp" placeholder="ex: 192.168.1.15" style="border:1.5px solid var(--amber-border);border-radius:5px;padding:5px 10px;font-size:13px;font-family:'Courier New',monospace;width:170px;">
+            <button onclick="validarIP()" class="btn" style="background:var(--amber-mid);font-size:12px;padding:6px 14px;">✔ Verificar</button>
+          </div>
+          <div id="ipValidMsg" style="font-size:12.5px; margin-top:6px; display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Passo 3 -->
+      <div style="background:#fff; border:1px solid var(--amber-border); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <div style="background:var(--amber-mid); color:#fff; font-weight:800; font-size:15px; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Teste o ping para o Google</div>
+          <div style="font-size:13px; color:#555; margin-bottom:8px;">Digite o comando abaixo e observe as respostas:</div>
+          <div style="background:#1a1a1a; border-radius:6px; padding:10px 14px; font-family:'Courier New',monospace; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span style="color:#5cd65c;">ping google.com</span>
+            <button onclick="copyCmd('ping google.com')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ccc;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;" title="Copiar comando">📋 copiar</button>
+          </div>
+          <div style="font-size:12.5px; color:#666; margin-top:8px; line-height:1.5;">Você verá 4 linhas com o tempo de resposta em <strong>ms</strong>. Anote o tempo médio abaixo:</div>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:600; color:var(--amber);">Tempo médio:</span>
+            <input type="number" id="pingMs" placeholder="ex: 18" style="border:1.5px solid var(--amber-border);border-radius:5px;padding:5px 10px;font-size:13px;width:100px;">
+            <span style="font-size:13px; color:#666;">ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 4 -->
+      <div style="background:#fff; border:1px solid var(--amber-border); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <div style="background:var(--amber-mid); color:#fff; font-weight:800; font-size:15px; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Teste um IP que não existe</div>
+          <div style="font-size:13px; color:#555; margin-bottom:8px;">Agora tente um endereço inexistente na sua rede:</div>
+          <div style="background:#1a1a1a; border-radius:6px; padding:10px 14px; font-family:'Courier New',monospace; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <span style="color:#5cd65c;">ping 192.168.99.99</span>
+            <button onclick="copyCmd('ping 192.168.99.99')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ccc;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;" title="Copiar comando">📋 copiar</button>
+          </div>
+          <div style="font-size:12.5px; color:#666; margin-top:8px; line-height:1.5;">O que apareceu? Selecione abaixo:</div>
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-sm" id="r4a" onclick="selecionarR4('certo', this)">⏱ Esgotamento do tempo limite</button>
+            <button class="btn-sm" id="r4b" onclick="selecionarR4('errado', this)">✅ Resposta rápida recebida</button>
+            <button class="btn-sm" id="r4c" onclick="selecionarR4('errado', this)">🔄 O computador reiniciou</button>
+          </div>
+          <div id="r4Msg" style="font-size:12.5px; margin-top:8px; display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Passo 5 -->
+      <div style="background:#fff; border:1px solid var(--amber-border); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <div style="background:var(--amber-mid); color:#fff; font-weight:800; font-size:15px; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">5</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Desafio: Ping no colega ao lado</div>
+          <div style="font-size:13px; color:#555; margin-bottom:8px;">Pergunte ao colega qual é o IP dele (passo 2) e faça um ping para ele:</div>
+          <div style="background:#1a1a1a; border-radius:6px; padding:10px 14px; font-family:'Courier New',monospace; font-size:13px; color:#5cd65c;">
+            ping <span style="color:#f0ad4e;">[IP do colega]</span>
+          </div>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:600; color:var(--amber);">IP do colega:</span>
+            <input type="text" id="ipColega" placeholder="ex: 192.168.1.22" style="border:1.5px solid var(--amber-border);border-radius:5px;padding:5px 10px;font-size:13px;font-family:'Courier New',monospace;width:170px;">
+            <button onclick="gerarPingColega()" class="btn" style="background:var(--amber-mid);font-size:12px;padding:6px 14px;">Gerar comando</button>
+          </div>
+          <div id="pingColegaCmd" style="margin-top:8px; display:none; background:#1a1a1a; border-radius:6px; padding:10px 14px; font-family:'Courier New',monospace; font-size:13px; display:none; align-items:center; justify-content:space-between; gap:8px;">
+            <span id="pingColegaText" style="color:#5cd65c;"></span>
+            <button id="pingColegaCopy" onclick="" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ccc;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;">📋 copiar</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /passo a passo -->
+
+    <!-- REFLEXÃO FINAL -->
+    <div style="background:#fff3cd; border:1.5px solid #ffca2c; border-radius:8px; padding:14px 16px;">
+      <div style="font-weight:700; font-size:14px; color:#5c4a00; margin-bottom:10px;">📝 Reflexão — Responda com suas palavras:</div>
+      <div style="font-size:13.5px; color:#5c4a00; margin-bottom:8px; font-weight:600;">Com base nos testes que você fez, explique: <em>Por que o computador envia 4 pacotes no ping em vez de 1?</em></div>
+      <textarea id="reflexaoTexto" rows="3" placeholder="Digite sua resposta aqui..." style="width:100%;border:1.5px solid #ffca2c;border-radius:6px;padding:10px;font-size:13.5px;font-family:inherit;resize:vertical;background:#fffdf0;"></textarea>
+      <div style="text-align:right; margin-top:8px;">
+        <button class="btn" onclick="salvarReflexao()" style="background:var(--amber-mid);font-size:13px;">💾 Salvar resposta</button>
+      </div>
+      <div id="reflexaoSalva" style="display:none; margin-top:8px; font-size:13px; color:var(--green); font-weight:600;">✅ Resposta registrada! Mostre ao professor quando solicitado.</div>
+    </div>
+
+  </div><!-- /card atividade prática -->
+
+  <div class="card">
+    <h3>Animação: pacotes viajando</h3>
+    <div class="net-canvas-wrap">
+      <canvas id="netCanvas" height="140"></canvas>
+    </div>
+    <div style="text-align:center; margin-top:8px;">
+      <button class="btn blue" onclick="startPacketAnim(false)">▶ Rede estável</button>
+      <button class="btn amber" onclick="startPacketAnim(true)" style="margin-left:8px;">⚡ Rede com perdas</button>
+    </div>
+  </div>
+
+  <div style="text-align:right; margin-top:1rem;">
+    <button class="btn" onclick="goTo('http')">Próximo: HTTP vs HTTPS →</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SEÇÃO 3: HTTP/HTTPS -->
+<section class="section" id="sec-http">
+  <p class="sec-title">HTTP vs HTTPS: navegando com ou sem segurança</p>
+  <p class="sec-sub">Clique nas partes coloridas da URL para descobrir o que cada uma significa.</p>
+
+  <div class="card">
+    <h3>Inspecione uma URL</h3>
+    <div style="margin-bottom:12px; font-size:13px; color:var(--gray-text);">Clique em cada parte colorida:</div>
+    <div class="url-bar">
+      <span class="url-part proto-hs" onclick="showUrlInfo('https')">https://</span>
+      <span class="url-part domain" onclick="showUrlInfo('domain')">www.escola.edu.br</span>
+      <span class="url-part path" onclick="showUrlInfo('path'">/portal/alunos</span>
+    </div>
+    <div class="url-tooltip" id="urlTooltip">👆 Clique em uma parte da URL acima para ver o que ela significa.</div>
+
+    <div style="margin-top:16px; font-size:13px; color:var(--gray-text); margin-bottom:6px;">Agora um site sem HTTPS:</div>
+    <div class="url-bar">
+      <span class="url-part proto-h" onclick="showUrlInfo('http')">http://</span>
+      <span class="url-part domain" onclick="showUrlInfo('domain')">site-antigo.com.br</span>
+      <span class="url-part path" onclick="showUrlInfo('path'">/pagina</span>
+    </div>
+  </div>
+
+  <div class="protocol-grid">
+    <div class="proto-card http">
+      <h4>HTTP</h4>
+      <div class="lock-anim" onclick="this.textContent=this.textContent==='🔓'?'🔓':'🔓'">🔓</div>
+      <ul>
+        <li>HyperText Transfer Protocol</li>
+        <li>Protocolo de transferência de páginas web</li>
+        <li>Dados viajam <strong>sem criptografia</strong></li>
+        <li>Qualquer um no caminho pode "ler" os pacotes</li>
+        <li>⚠️ Não use para senhas ou dados pessoais</li>
+      </ul>
+    </div>
+    <div class="proto-card https">
+      <h4>HTTPS</h4>
+      <div class="lock-anim" onclick="toggleLock(this)">🔒</div>
+      <ul>
+        <li>HTTP + <strong>S</strong>ecure (TLS/SSL)</li>
+        <li>Mesmas regras do HTTP, mas com criptografia</li>
+        <li>Os pacotes são <strong>"trancados"</strong> antes de sair</li>
+        <li>Mesmo interceptado, ninguém consegue ler</li>
+        <li>✅ Obrigatório para bancos, senhas, compras</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔐 Como a criptografia funciona?</h3>
+    <div id="cryptoDemo" style="margin-top:10px;">
+      <div style="font-size:13px; color:var(--gray-text); margin-bottom:8px;">Digite uma mensagem e veja o que acontece com e sem criptografia:</div>
+      <input type="text" id="cryptoInput" value="minha senha 123" style="width:100%; padding:8px 12px; border:1.5px solid var(--gray-border); border-radius:6px; font-size:14px; font-family:inherit;" oninput="updateCrypto()">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+        <div style="background:var(--amber-light); border:1px solid var(--amber-border); border-radius:8px; padding:12px;">
+          <div style="font-size:12px; font-weight:700; color:var(--amber); margin-bottom:6px;">🔓 HTTP (sem criptografia)</div>
+          <div id="httpMsg" style="font-family:'Courier New',monospace; font-size:13px; color:#333; word-break:break-all;"></div>
+        </div>
+        <div style="background:var(--blue-light); border:1px solid var(--blue-border); border-radius:8px; padding:12px;">
+          <div style="font-size:12px; font-weight:700; color:var(--blue); margin-bottom:6px;">🔒 HTTPS (criptografado)</div>
+          <div id="httpsMsg" style="font-family:'Courier New',monospace; font-size:13px; color:#185fa5; word-break:break-all;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:right; margin-top:1rem;">
+    <button class="btn" onclick="goTo('quiz')">Próximo: Atividade Final →</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SEÇÃO 4: QUIZ -->
+<section class="section" id="sec-quiz">
+  <p class="sec-title">Atividade Final</p>
+  <p class="sec-sub">Teste o que você aprendeu sobre IP, Ping, HTTP e HTTPS.</p>
+
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="card" id="quizCard">
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-feedback" id="quizFeedback" style="display:none;"></div>
+    <div style="text-align:right; margin-top:14px;">
+      <button class="btn" id="quizNext" style="display:none;" onclick="nextQuestion()">Próxima →</button>
+    </div>
+  </div>
+  <div id="scoreCard" style="display:none;"></div>
+</section>
+
+<script>
+const sections = ['intro','ping','http','quiz'];
+let currentSection = 'intro';
+
+function goTo(id) {
+  sections.forEach(s => {
+    document.getElementById('sec-'+s).classList.remove('active');
+  });
+  document.querySelectorAll('.nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', sections[i] === id);
+  });
+  document.getElementById('sec-'+id).classList.add('active');
+  currentSection = id;
+  const idx = sections.indexOf(id);
+  document.getElementById('progBar').style.width = ((idx+1)/sections.length*100)+'%';
+  if(id==='ping') initCanvas();
+  if(id==='quiz') initQuiz();
+  if(id==='http') updateCrypto();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── IP BUILDER ── */
+function updateIP() {
+  const vals = [1,2,3,4].map(i => {
+    let v = parseInt(document.getElementById('o'+i).value)||0;
+    v = Math.min(255, Math.max(0, v));
+    return v;
+  });
+  const ip = vals.join('.');
+  document.getElementById('ipDisplay').textContent = ip;
+  const badge = document.getElementById('ipTypeBadge');
+  if (vals[0]===192 && vals[1]===168 || vals[0]===10 || (vals[0]===172 && vals[1]>=16 && vals[1]<=31)) {
+    badge.className='ip-type-badge local'; badge.textContent='IP local (rede interna)';
+  } else if (vals[0]===127) {
+    badge.className='ip-type-badge local'; badge.textContent='Loopback — o próprio computador';
+  } else if (vals.some(v=>v>255||isNaN(v))) {
+    badge.className='ip-type-badge invalid'; badge.textContent='Endereço inválido';
+  } else {
+    badge.className='ip-type-badge public'; badge.textContent='IP público (internet)';
+  }
+}
+function setIP(a,b,c,d) {
+  ['o1','o2','o3','o4'].forEach((id,i)=>{ document.getElementById(id).value=[a,b,c,d][i]; });
+  updateIP();
+}
+
+/* ── PING SIMULATOR ── */
+const pingData = {
+  'google.com':    { ip:'142.251.128.100', times:[18,17,19,16], type:'public', desc:'O Google respondeu rapidamente! Todos os 4 pacotes chegaram. O tempo de ~18ms é excelente — significa que os dados foram lá e voltaram em menos de 0,02 segundos!' },
+  '8.8.8.8':       { ip:'8.8.8.8',        times:[12,11,13,12], type:'public', desc:'Esse é o servidor DNS público do Google. Resposta muito rápida! O DNS é o "catálogo telefônico" da internet — transforma nomes (google.com) em IPs.' },
+  '192.168.1.1':   { ip:'192.168.1.1',    times:[1,1,2,1],     type:'local',  desc:'Esse é o roteador da rede local! O tempo curtíssimo (1ms) mostra que ele está fisicamente perto — dentro da mesma rede. Sem internet, só cabo ou Wi-Fi.' },
+  '192.168.99.99': { ip:'192.168.99.99',  times:null,           type:'dead',   desc:'Nenhum dispositivo respondeu nesse IP! Isso gera "Esgotamento do tempo limite". O protocolo aguardou e concluiu: esse endereço não existe (ou está desligado).' },
+  '127.0.0.1':     { ip:'127.0.0.1',      times:[0,0,0,0],     type:'loop',   desc:'Esse é o endereço de loopback! Significa "eu mesmo". Você acabou de dar ping em si próprio — por isso o tempo é 0ms. Usado para testar se a rede do computador funciona.' },
+};
+function setPingTarget(t) { document.getElementById('pingTarget').value = t; }
+function clearTerminal() {
+  document.getElementById('termContent').innerHTML = '<span class="t-prompt">C:\\aluno&gt; </span><span class="cursor"></span>';
+  document.getElementById('pingExplainer').style.display='none';
+}
+function runPing() {
+  const target = document.getElementById('pingTarget').value.trim().toLowerCase();
+  const key = Object.keys(pingData).find(k => k===target);
+  const data = key ? pingData[key] : null;
+  const tc = document.getElementById('termContent');
+  const lines = [];
+  lines.push(`<span class="t-prompt">C:\\aluno&gt; </span><span class="t-cmd">ping ${target}</span>`);
+
+  if (!data) {
+    lines.push(`<span class="t-out">Disparando para ${target}...</span>`);
+    setTimeout(()=>{ lines.push(`<span class="t-err">Falha na solicitação. Host não encontrado.</span>`); render(); }, 800);
+    render();
+    showExplainer('Endereço desconhecido', `"${target}" não foi encontrado na internet. O protocolo DNS não conseguiu resolver esse nome para um IP.`);
+    return;
+  }
+
+  lines.push(`<span class="t-out">Disparando para ${target} [${data.ip}] com 32 bytes de dados:</span>`);
+  render();
+
+  const animate = (i) => {
+    if (i >= 4) {
+      if (data.times) {
+        const avg = Math.round(data.times.reduce((a,b)=>a+b)/4);
+        lines.push(`<span class="t-out">—</span>`);
+        lines.push(`<span class="t-out">Estatísticas do Ping para ${data.ip}:</span>`);
+        lines.push(`<span class="t-ok">    Pacotes: Enviados=4 Recebidos=4 Perdidos=0 (0% de perda)</span>`);
+        lines.push(`<span class="t-info">    Mínimo=${Math.min(...data.times)}ms  Máximo=${Math.max(...data.times)}ms  Média=${avg}ms</span>`);
+      } else {
+        lines.push(`<span class="t-out">—</span>`);
+        lines.push(`<span class="t-err">Estatísticas: Enviados=4 Recebidos=0 Perdidos=4 (100% de perda)</span>`);
+      }
+      lines.push(`<span class="t-prompt">C:\\aluno&gt; </span><span class="cursor"></span>`);
+      render();
+      showExplainer('O que aconteceu?', data.desc);
+      return;
+    }
+    if (data.times) {
+      lines.push(`<span class="t-ok">Resposta de ${data.ip}: bytes=32 tempo=${data.times[i]}ms TTL=55</span>`);
+    } else {
+      lines.push(`<span class="t-err">Esgotamento do tempo limite para esta solicitação.</span>`);
+    }
+    render();
+    setTimeout(()=>animate(i+1), 500);
+  };
+  setTimeout(()=>animate(0), 400);
+
+  function render() {
+    tc.innerHTML = lines.join('\n');
+    tc.scrollTop = tc.scrollHeight;
+  }
+}
+function showExplainer(title, text) {
+  document.getElementById('pingExpTitle').textContent = title;
+  document.getElementById('pingExpText').textContent = text;
+  document.getElementById('pingExplainer').style.display='block';
+}
+
+/* ── ATIVIDADE PRÁTICA ── */
+function copyCmd(cmd) {
+  navigator.clipboard.writeText(cmd).then(()=>{
+    const btns = document.querySelectorAll('.t-bar ~ * button, .card button');
+  }).catch(()=>{});
+  // feedback visual
+  event.target.textContent = '✅ copiado!';
+  setTimeout(()=>{ event.target.textContent = '📋 copiar'; }, 1800);
+}
+function validarIP() {
+  const val = document.getElementById('meuIp').value.trim();
+  const msg = document.getElementById('ipValidMsg');
+  const partes = val.split('.');
+  const ok = partes.length===4 && partes.every(p=>{ const n=parseInt(p); return !isNaN(n)&&n>=0&&n<=255&&String(n)===p; });
+  msg.style.display='block';
+  if (ok) {
+    const local = (partes[0]==='192'&&partes[1]==='168') || partes[0]==='10' || partes[0]==='127';
+    msg.style.color = 'var(--green)';
+    msg.innerHTML = local
+      ? `✅ Endereço válido! É um <strong>IP local</strong> — funciona só dentro desta rede (escola/casa).`
+      : `✅ Endereço válido! Parece ser um <strong>IP público</strong>.`;
+  } else {
+    msg.style.color = 'var(--red)';
+    msg.innerHTML = '❌ Formato inválido. Um IP tem 4 números de 0 a 255 separados por pontos. Ex: 192.168.1.15';
+  }
+}
+function selecionarR4(tipo, btn) {
+  ['r4a','r4b','r4c'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.style.background=''; el.style.color=''; el.style.borderColor='';
+  });
+  const msg = document.getElementById('r4Msg');
+  msg.style.display='block';
+  if(tipo==='certo'){
+    btn.style.background='var(--green-light)'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green-border)';
+    msg.style.color='var(--green)';
+    msg.innerHTML='✅ Correto! "Esgotamento do tempo limite" significa que o protocolo esperou e nenhum dispositivo respondeu — o IP não existe ou está desligado.';
+  } else {
+    btn.style.background='var(--red-light)'; btn.style.color='var(--red)'; btn.style.borderColor='#f09595';
+    msg.style.color='var(--red)';
+    msg.innerHTML='❌ Não foi bem isso... O resultado correto é "Esgotamento do tempo limite" — o protocolo aguardou e não recebeu resposta.';
+  }
+}
+function gerarPingColega() {
+  const ip = document.getElementById('ipColega').value.trim();
+  const wrap = document.getElementById('pingColegaCmd');
+  if(!ip){ wrap.style.display='none'; return; }
+  const cmd = `ping ${ip}`;
+  document.getElementById('pingColegaText').textContent = cmd;
+  document.getElementById('pingColegaCopy').onclick = ()=>{ navigator.clipboard.writeText(cmd); };
+  wrap.style.display='flex';
+}
+function salvarReflexao() {
+  const txt = document.getElementById('reflexaoTexto').value.trim();
+  if(!txt){ return; }
+  document.getElementById('reflexaoSalva').style.display='block';
+  document.getElementById('reflexaoTexto').style.borderColor='var(--green-border)';
+}
+
+
+let animFrame = null;
+function initCanvas() {
+  const canvas = document.getElementById('netCanvas');
+  canvas.width = canvas.offsetWidth || 680;
+}
+function startPacketAnim(lossy) {
+  if(animFrame) cancelAnimationFrame(animFrame);
+  const canvas = document.getElementById('netCanvas');
+  canvas.width = canvas.offsetWidth || 680;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const nodes = [
+    {x:60,  y:H/2, label:'Seu PC'},
+    {x:W/2, y:H/2, label:'Roteador'},
+    {x:W-60,y:H/2, label:'Servidor'},
+  ];
+
+  const packets = [];
+  let tick = 0;
+
+  function spawnPacket() {
+    const lost = lossy && Math.random() < 0.3;
+    packets.push({ x: nodes[0].x+20, y: H/2, t:0, lost, dying:false, alpha:1, ack:false });
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+
+    ctx.strokeStyle='#333'; ctx.lineWidth=2;
+    for(let i=0;i<nodes.length-1;i++){
+      ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[i+1].x,nodes[i+1].y); ctx.stroke();
+    }
+
+    nodes.forEach(n=>{
+      ctx.fillStyle='#1D9E75'; ctx.beginPath(); ctx.arc(n.x,n.y,18,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.label,n.x,n.y);
+    });
+
+    packets.forEach((p,idx)=>{
+      if(p.dying){ p.alpha-=0.07; if(p.alpha<=0){ packets.splice(idx,1); return; } }
+      else { p.t = Math.min(p.t+0.012, 1); p.x = nodes[0].x+20 + (nodes[2].x-20-nodes[0].x-20)*p.t; }
+
+      if(!p.dying && p.lost && p.t > 0.45+Math.random()*0.1 && !p.flagged){ p.flagged=true; p.dying=true; }
+      if(!p.dying && p.t>=1){ p.dying=true; p.ack=true; }
+
+      const col = p.lost ? '#e24b4a' : p.ack ? '#5cd65c' : '#378add';
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.rect(p.x-10,p.y-7,20,14); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 8px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p.lost?'✕':'✓',p.x,p.y);
+      ctx.globalAlpha=1;
+    });
+
+    tick++;
+    if(tick%70===0) spawnPacket();
+    animFrame = requestAnimationFrame(draw);
+  }
+  spawnPacket();
+  draw();
+}
+
+/* ── URL INSPECTOR ── */
+const urlInfos = {
+  https: { title:'HTTPS — Protocolo seguro', text:'O "S" vem de Secure (seguro). Os dados são criptografados antes de sair do computador. Ninguém no caminho consegue ler o conteúdo dos pacotes. Obrigatório para senhas, bancos e dados pessoais.' },
+  http:  { title:'HTTP — Sem criptografia', text:'HyperText Transfer Protocol. Define as regras para transmitir páginas web. Mas atenção: os pacotes viajam "abertos" — qualquer um que interceptar no caminho pode ler o conteúdo. Evite digitar senhas em sites HTTP!' },
+  domain:{ title:'Domínio — O "nome" do servidor', text:'O domínio é o nome do site, como "escola.edu.br". Quando você digita esse nome, o protocolo DNS busca qual endereço IP corresponde a ele — igual a pegar o telefone pelo nome numa agenda.' },
+  path:  { title:'Caminho (path) — A "página" no servidor', text:'Depois do domínio, o caminho indica qual página ou arquivo você quer acessar dentro do servidor. É como o número do apartamento dentro de um prédio.' },
+};
+function showUrlInfo(key) {
+  const d = urlInfos[key];
+  document.getElementById('urlTooltip').innerHTML = `<strong>${d.title}</strong><br>${d.text}`;
+}
+function toggleLock(el) { el.textContent = el.textContent==='🔒'?'🔓':'🔒'; }
+
+/* ── CRYPTO DEMO ── */
+function updateCrypto() {
+  const msg = document.getElementById('cryptoInput').value || '';
+  document.getElementById('httpMsg').textContent = msg || '(vazio)';
+  document.getElementById('httpsMsg').textContent = btoa(encodeURIComponent(msg)).replace(/(.{6})/g,'$1 ').trim().substring(0,80)+'…';
+}
+
+/* ── QUIZ — banco de 20 questões, sorteio de 10, alternativas embaralhadas ── */
+const BANK = [
+  {
+    type:'normal',
+    q:'O que é um endereço IP?',
+    opts:['O nome do computador na rede','Um endereço único que identifica um dispositivo na rede','A senha do Wi-Fi','O modelo do processador'],
+    ans:1,
+    exp:'O IP (Internet Protocol) é o endereço único que identifica cada dispositivo em uma rede, assim como um endereço postal identifica uma casa.'
+  },
+  {
+    type:'normal',
+    q:'Um computador com endereço 192.168.1.10 está em qual tipo de rede?',
+    opts:['Internet pública','Rede local (privada)','Rede de satélite','Rede Bluetooth'],
+    ans:1,
+    exp:'IPs que começam com 192.168.x.x são endereços privados, usados dentro de redes locais como escola ou residência.'
+  },
+  {
+    type:'normal',
+    q:'O que acontece quando damos ping em um IP inexistente?',
+    opts:['O computador reinicia','O ping retorna 0ms','Ocorre esgotamento do tempo limite — pacotes perdidos','Nada acontece'],
+    ans:2,
+    exp:'Se nenhum dispositivo responde no endereço, o protocolo aguarda e informa que o tempo esgotou — os pacotes são considerados perdidos.'
+  },
+  {
+    type:'normal',
+    q:'Qual a principal diferença entre HTTP e HTTPS?',
+    opts:['HTTPS é mais rápido que HTTP','HTTPS criptografa os dados; HTTP não','HTTP é mais seguro','Não há diferença entre eles'],
+    ans:1,
+    exp:'O HTTPS adiciona criptografia (TLS/SSL) ao HTTP, fazendo os pacotes "viajarem trancados" e ilegíveis para quem tentar interceptá-los.'
+  },
+  {
+    type:'normal',
+    q:'O que o ícone de cadeado 🔒 na barra do navegador indica?',
+    opts:['Que o site está offline','Que o site usa HTTPS — conexão segura','Que você precisa de senha para entrar','Que o site é mais rápido'],
+    ans:1,
+    exp:'O cadeado confirma que o site usa HTTPS — os dados trocados entre navegador e servidor estão criptografados.'
+  },
+  {
+    type:'normal',
+    q:'Para que serve o comando "ping"?',
+    opts:['Instalar programas','Testar se um endereço responde e medir o tempo','Descobrir a senha do Wi-Fi','Formatar o computador'],
+    ans:1,
+    exp:'O ping envia pacotes de teste e mostra o tempo de resposta (ms) e se houve perda — ferramenta básica de diagnóstico de rede.'
+  },
+  {
+    type:'normal',
+    q:'Quantos octetos tem um endereço IPv4?',
+    opts:['2','6','4','8'],
+    ans:2,
+    exp:'Um endereço IPv4 é formado por 4 grupos de números (octetos) separados por pontos, como 192.168.1.15. Cada octeto vai de 0 a 255.'
+  },
+  {
+    type:'normal',
+    q:'Qual endereço IP representa o próprio computador (loopback)?',
+    opts:['192.168.0.1','255.255.255.0','0.0.0.0','127.0.0.1'],
+    ans:3,
+    exp:'O IP 127.0.0.1 é o endereço de loopback — significa "eu mesmo". Ao dar ping nele, você testa se a rede interna do computador está funcionando.'
+  },
+  {
+    type:'normal',
+    q:'Qual dos endereços abaixo é público (visível na internet)?',
+    opts:['192.168.5.10','10.0.0.1','172.16.0.5','8.8.8.8'],
+    ans:3,
+    exp:'8.8.8.8 é o servidor DNS público do Google e possui um IP público. Os demais são faixas de endereços privados usados em redes locais.'
+  },
+  {
+    type:'normal',
+    q:'O que significa a sigla IP em "endereço IP"?',
+    opts:['Internet Page','Internal Protocol','Internet Protocol','Intranet Path'],
+    ans:2,
+    exp:'IP significa Internet Protocol — o conjunto de regras que define como os endereços de dispositivos na rede são formados e usados para entregar dados.'
+  },
+  {
+    type:'contexto',
+    ctx:'Ana abriu o navegador e tentou entrar no site da escola. Na barra de endereços ela viu: http://escola.edu.br. Ao tentar fazer login, uma mensagem apareceu: "Atenção: sua conexão não é segura."',
+    q:'Por que a conexão de Ana não é considerada segura?',
+    opts:['Porque o computador dela está desligado','Porque o site usa HTTP, sem criptografia nos dados','Porque a senha dela é fraca','Porque o Wi-Fi está instável'],
+    ans:1,
+    exp:'O site usa HTTP, que não criptografa os dados. Qualquer pessoa na mesma rede poderia interceptar os pacotes e ler a senha de Ana. Sites de login devem sempre usar HTTPS.'
+  },
+  {
+    type:'contexto',
+    ctx:'Pedro está no laboratório e quer saber se o computador do colega está ligado e conectado à rede. O IP do colega é 192.168.1.20.',
+    q:'Qual comando Pedro deve usar para verificar isso?',
+    opts:['ipconfig 192.168.1.20','ping 192.168.1.20','http 192.168.1.20','scan 192.168.1.20'],
+    ans:1,
+    exp:'O comando "ping 192.168.1.20" envia pacotes de teste para o computador do colega. Se responder, está ativo e conectado. Se não responder, o tempo esgota (timeout).'
+  },
+  {
+    type:'contexto',
+    ctx:'Larissa usou o comando ipconfig no computador do laboratório e viu: "Endereço IPv4: 192.168.0.45". Depois ela testou: ping 192.168.0.1 — resposta em 1ms. Então testou: ping google.com — resposta em 22ms.',
+    q:'O que podemos concluir sobre o computador de Larissa?',
+    opts:['Está desconectado da internet','Está conectado à rede local e à internet','Só acessa sites locais','O ping para o Google falhou'],
+    ans:1,
+    exp:'O IP 192.168.0.45 confirma que ela está em rede local. O ping ao roteador (192.168.0.1) em 1ms confirma a rede interna. O ping ao google.com em 22ms confirma acesso à internet.'
+  },
+  {
+    type:'contexto',
+    ctx:'Carlos quer comprar um tênis em uma loja online. Ele vê dois sites: loja1.com.br usa HTTP e loja2.com.br usa HTTPS. Ambos têm o mesmo preço.',
+    q:'Em qual site Carlos deve digitar os dados do cartão de crédito? Por quê?',
+    opts:['Loja1 — HTTP é mais rápido','Loja2 — HTTPS criptografa os dados e é mais seguro','Tanto faz — os dois são iguais','Loja1 — HTTP tem menos letras na URL'],
+    ans:1,
+    exp:'Carlos deve usar a Loja2 (HTTPS). A criptografia do HTTPS protege os dados do cartão enquanto viajam pela rede, impedindo que hackers os interceptem e leiam.'
+  },
+  {
+    type:'contexto',
+    ctx:'Durante a aula, a professora pediu que os alunos enviassem pacotes de papel com regras específicas: cada pacote precisava ter número de ordem, nome do remetente e nome do destinatário. Se chegasse sem alguma informação, devia ser descartado.',
+    q:'Essa atividade simula qual conceito de redes de computadores?',
+    opts:['O funcionamento do antivírus','O protocolo de comunicação e a estrutura dos pacotes de dados','A velocidade do processador','A capacidade de memória RAM'],
+    ans:1,
+    exp:'A atividade simula o funcionamento dos protocolos de rede. As regras (número de ordem, remetente, destinatário) representam o cabeçalho dos pacotes de dados que os protocolos como o TCP/IP exigem.'
+  },
+  {
+    type:'normal',
+    q:'Qual o valor máximo que um octeto de um endereço IPv4 pode ter?',
+    opts:['128','512','255','100'],
+    ans:2,
+    exp:'Cada octeto de um IPv4 é representado por 8 bits, o que permite valores de 0 a 255. Por isso o maior IP possível é 255.255.255.255.'
+  },
+  {
+    type:'normal',
+    q:'O que é o DNS no contexto de redes?',
+    opts:['Um tipo de cabo de rede','O sistema que transforma nomes de sites em endereços IP','O protocolo de criptografia do HTTPS','Um modelo de roteador'],
+    ans:1,
+    exp:'O DNS (Domain Name System) funciona como uma agenda: transforma nomes legíveis como "google.com" no endereço IP correspondente, para que os pacotes saibam onde ir.'
+  },
+  {
+    type:'normal',
+    q:'Em que situação o tempo de resposta do ping seria praticamente 0ms?',
+    opts:['Ping para um servidor no Japão','Ping para 192.168.1.1','Ping para 127.0.0.1 (loopback)','Ping para google.com'],
+    ans:2,
+    exp:'Ao dar ping em 127.0.0.1 (loopback), o pacote não sai do computador — ele é processado internamente, resultando em tempo ~0ms.'
+  },
+  {
+    type:'contexto',
+    ctx:'Você está baixando um arquivo grande e o download trava em 85%. Uma mensagem aparece: "Pacote 43 de 50 não recebido. Aguardando reenvio…"',
+    q:'O que esse comportamento demonstra sobre os protocolos de rede?',
+    opts:['Que a internet parou de funcionar','Que o protocolo detectou a perda e solicitou o reenvio do pacote','Que o arquivo está corrompido permanentemente','Que o computador não tem memória suficiente'],
+    ans:1,
+    exp:'O protocolo TCP detecta quando um pacote não chega ao destino e solicita o reenvio apenas daquele pacote. Isso garante que o arquivo chegue completo e íntegro.'
+  },
+  {
+    type:'contexto',
+    ctx:'Joana observou que ao acessar o banco pelo celular, a URL começa com https:// e há um cadeado verde. Ao acessar um blog antigo, a URL começa com http:// e aparece "Não seguro".',
+    q:'O que a criptografia do HTTPS garante especificamente nessa situação?',
+    opts:['Que o site do banco carrega mais rápido','Que os dados como senha e saldo viajam "trancados" e não podem ser lidos se interceptados','Que o blog antigo está fora do ar','Que o celular de Joana está protegido contra vírus'],
+    ans:1,
+    exp:'A criptografia TLS/SSL do HTTPS garante que os dados (senha, saldo, transações) sejam "embaralhados" antes de sair do celular. Mesmo interceptados, ficam ilegíveis para quem não tem a chave de decodificação.'
+  },
+];
+
+function shuffle(arr) {
+  const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a;
+}
+function pickQuestions() {
+  return shuffle(BANK).slice(0,10).map(q => {
+    const optsWithIdx = q.opts.map((o,i)=>({text:o, correct:i===q.ans}));
+    const shuffled = shuffle(optsWithIdx);
+    const newAns = shuffled.findIndex(o=>o.correct);
+    return { ...q, opts: shuffled.map(o=>o.text), ans: newAns };
+  });
+}
+
+let activeQuestions=[], qIdx=0, score=0;
+
+function initQuiz() {
+  activeQuestions = pickQuestions();
+  qIdx=0; score=0;
+  buildProgress();
+  showQuestion();
+  document.getElementById('quizCard').style.display='';
+  document.getElementById('scoreCard').style.display='none';
+}
+function buildProgress() {
+  const p = document.getElementById('quizProgress');
+  p.innerHTML = activeQuestions.map((_,i)=>`<div class="qp-dot ${i===0?'current':''}" id="qpd${i}"></div>`).join('');
+}
+function showQuestion() {
+  const q = activeQuestions[qIdx];
+  const header = `<span style="font-size:12px;color:var(--gray-text);font-weight:400;">Questão ${qIdx+1} de 10 &nbsp;·&nbsp; vale 1,0 ponto</span><br>`;
+  let contextBlock='';
+  if(q.type==='contexto') {
+    contextBlock=`<div style="background:#faeeda;border:1.5px solid #ef9f27;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13.5px;color:#412402;line-height:1.6;"><strong>📖 Leia com atenção:</strong><br>${q.ctx}</div>`;
+  }
+  document.getElementById('quizQ').innerHTML = header + contextBlock + `<span style="font-size:15px;font-weight:600;">${q.q}</span>`;
+  document.getElementById('quizOpts').innerHTML = q.opts.map((o,i)=>
+    `<button class="quiz-opt" onclick="answer(${i})">${String.fromCharCode(65+i)}) ${o}</button>`
+  ).join('');
+  document.getElementById('quizFeedback').style.display='none';
+  document.getElementById('quizNext').style.display='none';
+}
+function answer(i) {
+  const q = activeQuestions[qIdx];
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach(b=>b.disabled=true);
+  const correct = i===q.ans;
+  btns[i].classList.add(correct?'correct':'wrong');
+  if(!correct) btns[q.ans].classList.add('correct');
+  if(correct) score++;
+  const fb = document.getElementById('quizFeedback');
+  fb.className='quiz-feedback '+(correct?'ok':'err');
+  fb.innerHTML = (correct?'✅ <strong>Correto!</strong> ':'❌ <strong>Não era essa.</strong> ')+q.exp;
+  fb.style.display='';
+  document.getElementById('quizNext').style.display='';
+  const dot = document.getElementById('qpd'+qIdx);
+  dot.classList.remove('current');
+  dot.classList.add(correct?'done-ok':'done-err');
+  if(qIdx+1<10) document.getElementById('qpd'+(qIdx+1)).classList.add('current');
+}
+function nextQuestion() {
+  qIdx++;
+  if(qIdx>=10) { showScore(); return; }
+  showQuestion();
+}
+function showScore() {
+  document.getElementById('quizCard').style.display='none';
+  const nota = score;
+  const cor = nota>=7?'#3b6d11': nota>=5?'#854f0b':'#a32d2d';
+  const bgCor = nota>=7?'#eaf3de': nota>=5?'#faeeda':'#fcebeb';
+  const msg = nota===10?'🏆 Nota máxima! Você é mestre das redes!':
+              nota>=9?'🌟 Excelente! Quase perfeito!':
+              nota>=7?'🎉 Muito bem! Você entendeu os conceitos principais!':
+              nota>=5?'💪 Aprovado! Mas ainda dá para melhorar — revise o conteúdo.':
+              '📚 Continue estudando! Revise as seções e tente novamente.';
+  document.getElementById('scoreCard').innerHTML = `
+    <div style="background:#fff;border:1px solid #d3d1c7;border-radius:12px;padding:2.5rem 1.5rem;text-align:center;">
+      <div style="font-size:13px;color:#888;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Sua nota final</div>
+      <div style="font-size:140px;font-weight:900;line-height:1;color:${cor};font-family:'Segoe UI',Arial,sans-serif;">${nota}</div>
+      <div style="font-size:22px;color:#888;margin-top:-8px;margin-bottom:16px;">/ 10</div>
+      <div style="display:inline-block;background:${bgCor};color:${cor};border-radius:8px;padding:10px 24px;font-size:16px;font-weight:600;margin-bottom:20px;">${msg}</div>
+      <div style="margin:16px 0;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+        ${activeQuestions.map((_,i)=>`<div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:${document.getElementById('qpd'+i)&&document.getElementById('qpd'+i).classList.contains('done-ok')?'#639922':'#e24b4a'};color:#fff;">${i+1}</div>`).join('')}
+      </div>
+      <div style="font-size:13px;color:#888;margin-bottom:20px;">As questões são sorteadas a cada tentativa — cada aluno recebe uma prova diferente!</div>
+      <button class="btn" onclick="initQuiz()">🔄 Nova tentativa</button>
+      <button class="btn-sm" style="margin-left:8px;" onclick="goTo('intro')">Rever conteúdo</button>
+    </div>`;
+  document.getElementById('scoreCard').style.display='';
+  document.getElementById('scoreCard').scrollIntoView({behavior:'smooth'});
+}
+
+updateCrypto();
+</script>
+
+<footer style="background:#2c2c2a;color:#b4b2a9;text-align:center;padding:14px 1rem;font-size:13px;margin-top:0;letter-spacing:0.3px;">
+  Atividade Educativa &nbsp;|&nbsp; <strong style="color:#d3d1c7;">Profª Adriana Bett Terebinto</strong>
+</footer>
+</body>
+</html>
